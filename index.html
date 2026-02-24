@@ -1,13 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>University Ticketing System</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="Evgeniya Taheri" />
+  <meta name="description" content="This is main page with admin and student login" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <title>Main page</title>
+</head>
+
+<body>
+  <ul id="menubar"></ul>
+
+  <section class="about">
+    <h1>Login</h1>
+
+    <div>
+      <label for="username">Login</label>
+      <input id="username" type="text" placeholder="Enter your student/admin login" />
+    </div>
+
+    <div>
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Enter your password" />
+    </div>
+
+    <div>
+      <button class="primary" type="button" id="submitBtn">Sign in</button>
+    </div>
+
+    <p id="message" style="color: red; margin-top: 10px;"></p>
+  </section>
+
+  
+  <footer>
+    <p>Student Service Desc</p>
+  </footer>
+
+  <script src="js/menu.js"></script>
+  <script src="js/login.js"></script>
+</body>
 </html>
