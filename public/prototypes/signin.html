@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="Evgeniya Taheri" />
+  <meta name="description" content="Prototype: home + sign in page" />
+  <link rel="stylesheet" href="./styles.css" />
+  <title>Prototype Sign In</title>
+</head>
+<body>
+  <ul id="menubar"></ul>
+
+  <section class="about">
+    <h1>Login</h1>
+
+    <div>
+      <label for="username">Login</label>
+      <input id="username" type="text" placeholder="Enter your student/admin login" />
+    </div>
+
+    <div>
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Enter your password" />
+    </div>
+
+    <div>
+      <button class="primary" type="button" id="submitBtn">Sign in</button>
+    </div>
+
+    <p id="message" style="color: red; margin-top: 10px;"></p>
+  </section>
+
+  <footer>
+    <p>Student Service Desc</p>
+  </footer>
+
+  <script src="./menu.js"></script>
+  <script src="./login.js"></script>
+</body>
+</html>
