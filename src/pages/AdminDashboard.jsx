@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { BarChart3, Clock, CheckCircle, Loader, Search, Filter } from 'lucide-react'
 import { tickets as initialTickets } from '../data/mockTicketsData'
@@ -12,6 +12,10 @@ const AdminDashboard = ({ user }) => {
   const [filterStatus, setFilterStatus] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [filterPriority, setFilterPriority] = useState('all')
+
+  const toggleStatusFilter = (status) => {
+    setFilterStatus((prev) => (prev === status ? 'all' : status))
+  }
 
   const handleUpdateStatus = (ticketId, newStatus, comment) => {
     setTickets((prevTickets) =>
@@ -63,6 +67,7 @@ const AdminDashboard = ({ user }) => {
 
   return (
     <div className="container-bordered py-8">
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -72,12 +77,18 @@ const AdminDashboard = ({ user }) => {
         <p className="text-gray-600">Manage and track all support tickets</p>
       </motion.div>
 
+      {/* Dashboard Cards */}
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+
+        {/* Total Tickets */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass-card"
+          onClick={() => setFilterStatus('all')}
+          className={`glass-card cursor-pointer ${filterStatus === 'all' ? 'ring-2 ring-primary' : ''}`}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -90,11 +101,14 @@ const AdminDashboard = ({ user }) => {
           </div>
         </motion.div>
 
+        {/* Pending */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass-card"
+          onClick={() => toggleStatusFilter('pending')}
+          className={`glass-card cursor-pointer ${filterStatus === 'pending' ? 'ring-2 ring-pending' : ''}`}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -107,11 +121,14 @@ const AdminDashboard = ({ user }) => {
           </div>
         </motion.div>
 
+        {/* In Progress */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="glass-card"
+          onClick={() => toggleStatusFilter('in-progress')}
+          className={`glass-card cursor-pointer ${filterStatus === 'in-progress' ? 'ring-2 ring-inProgress' : ''}`}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -124,11 +141,14 @@ const AdminDashboard = ({ user }) => {
           </div>
         </motion.div>
 
+        {/* Resolved */}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="glass-card"
+          onClick={() => toggleStatusFilter('resolved')}
+          className={`glass-card cursor-pointer ${filterStatus === 'resolved' ? 'ring-2 ring-resolved' : ''}`}
         >
           <div className="flex items-center justify-between">
             <div>
@@ -140,7 +160,10 @@ const AdminDashboard = ({ user }) => {
             </div>
           </div>
         </motion.div>
+
       </div>
+
+      {/* Search + Filters */}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -149,6 +172,7 @@ const AdminDashboard = ({ user }) => {
         className="glass-card mb-6"
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+
           <div className="flex-1 max-w-md">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -163,6 +187,7 @@ const AdminDashboard = ({ user }) => {
           </div>
 
           <div className="flex items-center space-x-3">
+
             <div className="flex items-center space-x-2">
               <Filter className="w-5 h-5 text-gray-600" />
               <select
@@ -187,9 +212,12 @@ const AdminDashboard = ({ user }) => {
               <option value="medium">Medium</option>
               <option value="low">Low</option>
             </select>
+
           </div>
         </div>
       </motion.div>
+
+      {/* Ticket List */}
 
       <div className="space-y-4">
         {filteredTickets.length === 0 ? (
