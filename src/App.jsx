@@ -4,6 +4,7 @@ import Navigation from './components/Navigation'
 import AdminDashboard from './pages/AdminDashboard'
 import StudentPortal from './pages/StudentPortal'
 import Login from './pages/Login'
+import Welcome from './pages/Welcome'
 
 const App = () => {
   const [user, setUser] = useState(null)
@@ -53,7 +54,7 @@ const App = () => {
         />
         <Route
           path="/"
-          element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/student') : '/login'} />}
+          element={user ? <Navigate to={user.role === 'admin' ? '/admin' : '/student'} /> : <Welcome />}
         />
       </Routes>
     </div>
