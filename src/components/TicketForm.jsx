@@ -14,16 +14,21 @@ const TicketForm = ({ isOpen, onClose, onSubmit, user }) => {
 
   const onFormSubmit = async (data) => {
     setIsSubmitting(true)
-    setTimeout(() => {
-      onSubmit({
-        ...data,
-        studentId: user.id,
-        studentName: user.name,
-        studentEmail: user.email,
-      })
-      setIsSubmitting(false)
-      reset()
-      onClose()
+    setTimeout(async () => {
+      try {
+        await onSubmit({
+          ...data,
+          studentId: user.id,
+          studentName: user.name,
+          studentEmail: user.email,
+        })
+        reset()
+        onClose()
+      } catch {
+        // Keep the modal open so the user can retry if API save fails.
+      } finally {
+        setIsSubmitting(false)
+      }
     }, 800)
   }
 

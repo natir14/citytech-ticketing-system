@@ -5,17 +5,26 @@ import AdminDashboard from './pages/AdminDashboard'
 import StudentPortal from './pages/StudentPortal'
 import Login from './pages/Login'
 import Welcome from './pages/Welcome'
+import { loadTickets, createTicket, updateTicketStatus } from './utils/ticketStorage'
 
 const App = () => {
   const [user, setUser] = useState(null)
+  const [tickets, setTickets] = useState([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('currentUser')
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    const bootstrapApp = async () => {
+      const storedUser = localStorage.getItem('currentUser')
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+      }
+
+      const loadedTickets = await loadTickets()
+      setTickets(loadedTickets)
+      setIsLoading(false)
     }
-    setIsLoading(false)
+
+    bootstrapApp()
   }, [])
 
   const handleLogin = (userData) => {
@@ -26,6 +35,24 @@ const App = () => {
   const handleLogout = () => {
     setUser(null)
     localStorage.removeItem('currentUser')
+  }
+
+  const handleCreateTicket = async (ticketData) => {
+    const newTicket = await createTicket(ticketData)
+    setTickets((prevTickets) => [newTicket, ...prevTickets])
+  }
+
+  const handleUpdateTicketStatus = async (ticketId, newStatus, comment) => {
+    const updatedTicket = await updateTicketStatus({
+      ticketId,
+      status: newStatus,
+      comment,
+      updatedBy: user?.name || 'Admin',
+    })
+
+    setTickets((prevTickets) =>
+      prevTickets.map((ticket) => (ticket.id === ticketId ? updatedTicket : ticket))
+    )
   }
 
   if (isLoading) {
@@ -46,11 +73,31 @@ const App = () => {
         />
         <Route
           path="/admin"
-          element={user && user.role === 'admin' ? <AdminDashboard user={user} /> : <Navigate to="/login" />}
+          element={
+            user && user.role === 'admin' ? (
+              <AdminDashboard
+                user={user}
+                tickets={tickets}
+                onUpdateTicketStatus={handleUpdateTicketStatus}
+              />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/student"
-          element={user && user.role === 'student' ? <StudentPortal user={user} /> : <Navigate to="/login" />}
+          element={
+            user && user.role === 'student' ? (
+              <StudentPortal
+                user={user}
+                tickets={tickets}
+                onCreateTicket={handleCreateTicket}
+              />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/"

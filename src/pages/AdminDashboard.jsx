@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { BarChart3, Clock, CheckCircle, Loader, Search, Filter } from 'lucide-react'
-import { tickets as initialTickets } from '../data/mockTicketsData'
 import TicketCard from '../components/TicketCard'
 import StatusUpdateModal from '../components/StatusUpdateModal'
 
-const AdminDashboard = ({ user }) => {
-  const [tickets, setTickets] = useState(initialTickets)
+const AdminDashboard = ({ tickets, onUpdateTicketStatus }) => {
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [filterStatus, setFilterStatus] = useState('all')
@@ -18,33 +16,7 @@ const AdminDashboard = ({ user }) => {
   }
 
   const handleUpdateStatus = (ticketId, newStatus, comment) => {
-    setTickets((prevTickets) =>
-      prevTickets.map((ticket) => {
-        if (ticket.id === ticketId) {
-          const updatedTicket = {
-            ...ticket,
-            status: newStatus,
-            updatedAt: new Date(),
-            assignedTo: user.name,
-          }
-
-          if (comment) {
-            updatedTicket.comments = [
-              ...(ticket.comments || []),
-              {
-                id: (ticket.comments?.length || 0) + 1,
-                author: user.name,
-                text: comment,
-                timestamp: new Date(),
-              },
-            ]
-          }
-
-          return updatedTicket
-        }
-        return ticket
-      })
-    )
+    return onUpdateTicketStatus(ticketId, newStatus, comment)
   }
 
   const filteredTickets = tickets.filter((ticket) => {

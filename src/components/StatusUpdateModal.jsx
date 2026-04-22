@@ -1,22 +1,32 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, CheckCircle, Loader, AlertCircle } from 'lucide-react'
 import { format } from 'date-fns'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const StatusUpdateModal = ({ ticket, isOpen, onClose, onUpdateStatus }) => {
   const [selectedStatus, setSelectedStatus] = useState(ticket?.status || 'pending')
   const [comment, setComment] = useState('')
   const [isUpdating, setIsUpdating] = useState(false)
 
+  useEffect(() => {
+    setSelectedStatus(ticket?.status || 'pending')
+    setComment('')
+  }, [ticket, isOpen])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsUpdating(true)
 
-    setTimeout(() => {
-      onUpdateStatus(ticket.id, selectedStatus, comment)
-      setIsUpdating(false)
-      setComment('')
-      onClose()
+    setTimeout(async () => {
+      try {
+        await onUpdateStatus(ticket.id, selectedStatus, comment)
+        setComment('')
+        onClose()
+      } catch {
+        // Keep modal open so the admin can retry if API update fails.
+      } finally {
+        setIsUpdating(false)
+      }
     }, 800)
   }
 

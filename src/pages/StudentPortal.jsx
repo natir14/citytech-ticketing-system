@@ -1,30 +1,18 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Ticket, Clock, CheckCircle, Loader, Search } from 'lucide-react'
-import { tickets as initialTickets } from '../data/mockTicketsData'
 import TicketCard from '../components/TicketCard'
 import TicketForm from '../components/TicketForm'
 import { format } from 'date-fns'
 
-const StudentPortal = ({ user }) => {
-  const [tickets, setTickets] = useState(initialTickets)
+const StudentPortal = ({ user, tickets, onCreateTicket }) => {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [filterStatus, setFilterStatus] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTicket, setSelectedTicket] = useState(null)
 
   const handleCreateTicket = (ticketData) => {
-    const newTicket = {
-      id: tickets.length + 1,
-      ...ticketData,
-      status: 'pending',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      assignedTo: null,
-      comments: [],
-    }
-
-    setTickets([newTicket, ...tickets])
+    return onCreateTicket(ticketData)
   }
 
   const myTickets = tickets.filter((ticket) => ticket.studentId === user.id)
