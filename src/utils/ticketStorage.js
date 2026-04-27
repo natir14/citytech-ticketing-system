@@ -1,4 +1,30 @@
-import { tickets as mockTickets } from '../data/mockTicketsData'
+import { hasSupabaseConfig, supabase } from '../lib/supabase'
+
+const mapSupabaseTicket = (ticket) => ({
+  id: ticket.id,
+  title: ticket.title,
+  description: ticket.description,
+  category: ticket.category,
+  priority: ticket.priority,
+  status: ticket.status,
+  studentId: ticket.student_id,
+  studentName: ticket.student_name,
+  studentEmail: ticket.student_email,
+  assignedTo: ticket.assigned_to,
+  comments: ticket.comments || [],
+  createdAt: ticket.created_at,
+  updatedAt: ticket.updated_at,
+})
+
+const toSupabaseTicketPayload = (ticketData) => ({
+  title: ticketData.title,
+  description: ticketData.description,
+  category: ticketData.category,
+  priority: ticketData.priority,
+  student_id: ticketData.studentId,
+  student_name: ticketData.studentName,
+  student_email: ticketData.studentEmail,
+})
 
 const hydrateTicket = (ticket) => ({
   ...ticket,
@@ -10,59 +36,87 @@ const hydrateTicket = (ticket) => ({
   })),
 })
 
-const toApiError = async (response, fallbackMessage) => {
-  try {
-    const body = await response.json()
-    return new Error(body.message || fallbackMessage)
-  } catch {
-    return new Error(fallbackMessage)
+const ensureSupabase = () => {
+  if (!hasSupabaseConfig || !supabase) {
+    throw new Error('Supabase is not configured.')
   }
+
+  return supabase
 }
 
 export const loadTickets = async () => {
-  try {
-    const response = await fetch('/api/tickets')
-    if (!response.ok) {
-      throw await toApiError(response, 'Failed to load tickets')
-    }
+  const client = ensureSupabase()
+  const { data, error } = await client
+    .from('tickets')
+    .select('*')
+    .order('created_at', { ascending: false })
 
-    const tickets = await response.json()
-    return Array.isArray(tickets) ? tickets.map(hydrateTicket) : mockTickets.map(hydrateTicket)
-  } catch {
-    return mockTickets.map(hydrateTicket)
+  if (error) {
+    throw error
   }
+
+  return (data || []).map(mapSupabaseTicket).map(hydrateTicket)
 }
 
 export const createTicket = async (ticketData) => {
-  const response = await fetch('/api/tickets', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(ticketData),
-  })
+  const client = ensureSupabase()
+  const { data, error } = await client
+    .from('tickets')
+    .insert({
+      ...toSupabaseTicketPayload(ticketData),
+      status: 'pending',
+      assigned_to: null,
+      comments: [],
+    })
+    .select()
+    .single()
 
-  if (!response.ok) {
-    throw await toApiError(response, 'Failed to create ticket')
+  if (error) {
+    throw error
   }
 
-  const ticket = await response.json()
-  return hydrateTicket(ticket)
+  return hydrateTicket(mapSupabaseTicket(data))
 }
 
 export const updateTicketStatus = async ({ ticketId, status, comment, updatedBy }) => {
-  const response = await fetch(`/api/tickets/${ticketId}/status`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ status, comment, updatedBy }),
-  })
+  const client = ensureSupabase()
+  const { data: existingTicket, error: fetchError } = await client
+    .from('tickets')
+    .select('*')
+    .eq('id', ticketId)
+    .single()
 
-  if (!response.ok) {
-    throw await toApiError(response, 'Failed to update ticket status')
+  if (fetchError) {
+    throw fetchError
   }
 
-  const ticket = await response.json()
-  return hydrateTicket(ticket)
+  const nextComments = comment
+    ? [
+        ...(existingTicket.comments || []),
+        {
+          id: (existingTicket.comments?.length || 0) + 1,
+          author: updatedBy,
+          text: comment,
+          timestamp: new Date().toISOString(),
+        },
+      ]
+    : existingTicket.comments || []
+
+  const { data, error } = await client
+    .from('tickets')
+    .update({
+      status,
+      assigned_to: updatedBy,
+      comments: nextComments,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', ticketId)
+    .select()
+    .single()
+
+  if (error) {
+    throw error
+  }
+
+  return hydrateTicket(mapSupabaseTicket(data))
 }
