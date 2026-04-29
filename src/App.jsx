@@ -14,14 +14,21 @@ const App = () => {
 
   useEffect(() => {
     const bootstrapApp = async () => {
-      const storedUser = localStorage.getItem('currentUser')
-      if (storedUser) {
-        setUser(JSON.parse(storedUser))
-      }
+      try {
+        const storedUser = localStorage.getItem('currentUser')
+        if (storedUser) {
+          setUser(JSON.parse(storedUser))
+        }
 
-      const loadedTickets = await loadTickets()
-      setTickets(loadedTickets)
-      setIsLoading(false)
+        const loadedTickets = await loadTickets()
+        setTickets(loadedTickets)
+      } catch (error) {
+        // Avoid trapping users on a permanent spinner if remote data fails.
+        console.error('Failed to load tickets:', error)
+        setTickets([])
+      } finally {
+        setIsLoading(false)
+      }
     }
 
     bootstrapApp()
