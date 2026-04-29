@@ -3,11 +3,14 @@ import { Building2, ShieldCheck, ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Welcome = () => {
+  const heroBackgroundUrl = `${import.meta.env.BASE_URL}images%20%289%29.jpg`
+  const heroBannerUrl = `${import.meta.env.BASE_URL}images%20%283%29.png`
+
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: 'url(/images%20%289%29.jpg)' }}
+        style={{ backgroundImage: `url(${heroBackgroundUrl})` }}
       />
 
       <div className="container-bordered w-full relative z-10">
@@ -18,7 +21,7 @@ const Welcome = () => {
         >
           <div className="mb-6 overflow-hidden rounded-xl border border-warning/30">
             <img
-              src="/images%20%283%29.png"
+              src={heroBannerUrl}
               alt="City Technology College Campus"
               className="w-full h-56 md:h-72 object-cover"
             />
