@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 const TicketForm = ({ isOpen, onClose, onSubmit, user }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
   const {
     register,
     handleSubmit,
@@ -14,6 +15,7 @@ const TicketForm = ({ isOpen, onClose, onSubmit, user }) => {
 
   const onFormSubmit = async (data) => {
     setIsSubmitting(true)
+    setSubmitError(null)
     setTimeout(async () => {
       try {
         await onSubmit({
@@ -24,8 +26,8 @@ const TicketForm = ({ isOpen, onClose, onSubmit, user }) => {
         })
         reset()
         onClose()
-      } catch {
-        // Keep the modal open so the user can retry if API save fails.
+      } catch (err) {
+        setSubmitError(err?.message || 'Failed to submit ticket. Please try again.')
       } finally {
         setIsSubmitting(false)
       }
@@ -145,6 +147,12 @@ const TicketForm = ({ isOpen, onClose, onSubmit, user }) => {
                 <p><span className="font-medium">Student ID:</span> {user.id}</p>
               </div>
             </div>
+
+            {submitError && (
+              <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+                {submitError}
+              </div>
+            )}
 
             <div className="flex space-x-3">
               <button
